@@ -182,14 +182,24 @@
         
         Notification.requestPermission().then((permission) => {
             if (permission === 'granted') {
-                // PASTE YOUR VAPID KEY HERE
-                messaging.getToken({ vapidKey: "BNS5mDNvT2NybDFcHW6tPxR-MfEU8dvXVk8eDB_u9R-llA7a5nwGTFZkhHtmYqAloLaf-B9Ukhl5LG-K4wOYbto" })
-                .then((currentToken) => {
+                
+                // 1. Manually register the service worker in your specific GitHub folder
+                navigator.serviceWorker.register('/KMC-Notifier/firebase-messaging-sw.js')
+                .then(function(registration) {
+                    
+                    // 2. Tell Firebase to use this specific registration
+                    return messaging.getToken({ 
+                        vapidKey: "PASTE_YOUR_VAPID_KEY_HERE", // KEEP YOUR VAPID KEY HERE
+                        serviceWorkerRegistration: registration 
+                    });
+                    
+                }).then((currentToken) => {
                     if (currentToken) {
+                        // Save token to Firestore
                         db.collection('tokens').doc(currentToken).set({ token: currentToken })
                         .then(() => {
                             btn.innerText = "✅ Notifications Enabled!";
-                            btn.style.backgroundColor = "#e8f5e9";
+                            btn.style.backgroundColor = "#28a745";
                         });
                     }
                 }).catch((err) => {
@@ -201,7 +211,7 @@
             }
         });
     }
-
+    
     // Load Notices from JSON
     fetch('notices.json')
     .then(response => response.json())
@@ -251,3 +261,4 @@
 
 </body>
 </html>
+
