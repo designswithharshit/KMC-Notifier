@@ -86,12 +86,11 @@
         Notification.requestPermission().then((permission) => {
             if (permission === 'granted') {
                 
-                // Point exactly to your GitHub Repo folder
                 navigator.serviceWorker.register('/KMC-Notifier/firebase-messaging-sw.js')
                 .then(function(registration) {
                     
-                    // The .trim() fixes the 'atob' space error automatically!
-                    const myVapidKey = "BNS5mDNvT2NybDFcHW6tPxRMfEU8dvXVk8eDB_u9RllA7a5nwGTFZkhHtmYqAloLaf-B9Ukhl5LG-K4wOYbtoE".trim();
+                    // PASTE YOUR NEW COPIED VAPID KEY HERE BETWEEN THE QUOTES
+                    const myVapidKey = "BNS5mDNvT2NybDFcHW6tPxR-MfEU8dvXVk8eDB_u9R-llA7a5nwGTFZkhHtmYqAloLaf-B9Ukhl5LG-K4wOYbto".trim();
                     
                     return messaging.getToken({ 
                         vapidKey: myVapidKey, 
@@ -100,7 +99,6 @@
                     
                 }).then((currentToken) => {
                     if (currentToken) {
-                        // Save token to Firestore Database
                         db.collection('tokens').doc(currentToken).set({ token: currentToken })
                         .then(() => {
                             btn.innerText = "✅ Notifications Enabled!";
@@ -109,6 +107,8 @@
                         });
                     }
                 }).catch((err) => {
+                    // THIS IS THE CORRECT SPOT FOR THE ALERT
+                    alert("TOKEN ERROR: " + err.message);
                     console.error('Error getting token', err);
                     btn.innerText = "❌ Error. Try Again.";
                 });
@@ -162,12 +162,10 @@
         });
     }).catch(err => {
         document.getElementById('notices').innerHTML = '<p style="text-align:center;">Updates arriving soon...</p>';
-        alert("ERROR INFO: " + err.message); // <-- THIS CREATES THE POP-UP
-        console.error('Error getting token', err);
-        btn.innerText = "❌ Error. Try Again.";
     });
 </script>
-
+    
 </body>
 </html>
+
 
