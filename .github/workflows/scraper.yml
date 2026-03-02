@@ -1,0 +1,39 @@
+name: KMC Notice Scraper
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour at minute 0
+  workflow_dispatch: # Adds a button so you can run it manually anytime
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    
+    # Give GitHub permission to save the JSON file back to the repo
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Scraper
+        env:
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+        run: python scraper.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add notices.json
+          git commit -m "Automated update: New notices fetched" || echo "No new notices to commit"
+          git push
