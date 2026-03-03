@@ -80,9 +80,10 @@ def send_push_notifications(db, new_notices):
     if not tokens:
         print("No subscribers found in database.")
         return
-
+    
     # Format the notification text
-    if len(new_notices_list) == 1:
+
+    if len(new_notices) == 1:
         title = "📢 New KMC Notice"
         notice_body = new_notices[0]['title']
     else:
@@ -92,7 +93,7 @@ def send_push_notifications(db, new_notices):
     # Build the push message
     message = messaging.MulticastMessage(
             notification=messaging.Notification(
-                title='New KMC Notice',
+                title=title,
                 body=notice_body
             ),
             webpush=messaging.WebpushConfig(
@@ -182,5 +183,6 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
