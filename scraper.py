@@ -105,7 +105,7 @@ def send_push_notifications(db, new_notices):
     
     # Blast it out
     try:
-        response = messaging.send_multicast(message)
+        response = messaging.send_each_for_multicast(message)
         print(f"Successfully sent {response.success_count} push notifications!")
         if response.failure_count > 0:
             print(f"Failed to send {response.failure_count} notifications.")
@@ -180,4 +180,5 @@ def get_and_filter_notices():
         print("No new notices found.")
 
 if __name__ == "__main__":
+
     get_and_filter_notices()
