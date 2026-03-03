@@ -91,16 +91,16 @@ def send_push_notifications(db, new_notices):
 
     # Build the push message
     message = messaging.MulticastMessage(
-        notification=messaging.Notification(
-            title=title,
-            body=body
-        ),
-        webpush=messaging.WebpushConfig(
-            fcm_options=messaging.WebpushFCMOptions(
-                link="https://designswithharshit.github.io/KMC-Notifier/" # <--- CHANGE THIS TO YOUR GITHUB PAGE URL
-            )
-        ),
-        tokens=tokens
+            notification=messaging.Notification(
+                title='New KMC Notice',
+                body=notice_title
+            ),
+            webpush=messaging.WebpushConfig(
+                notification=messaging.WebpushNotification(
+                    icon='https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png'
+                )
+            ),
+            tokens=tokens
     )
     
     # Blast it out
@@ -182,3 +182,4 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
