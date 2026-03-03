@@ -13,12 +13,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(function(payload) {
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: 'https://kmc.du.ac.in/home/img/favicon.fw.png'
-  };
-
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
+
