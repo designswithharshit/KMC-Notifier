@@ -82,18 +82,18 @@ def send_push_notifications(db, new_notices):
         return
 
     # Format the notification text
-    if len(new_notices) == 1:
+    if len(new_notices_list) == 1:
         title = "📢 New KMC Notice"
-        body = new_notices[0]['title']
+        notice_body = new_notices[0]['title']
     else:
         title = f"📢 {len(new_notices)} New KMC Notices"
-        body = "Tap to view the latest updates on the notice board."
+        notice_body = "Tap to view the latest updates on the notice board."
 
     # Build the push message
     message = messaging.MulticastMessage(
             notification=messaging.Notification(
                 title='New KMC Notice',
-                body=notice_title
+                body=notice_body
             ),
             webpush=messaging.WebpushConfig(
                 notification=messaging.WebpushNotification(
@@ -182,4 +182,5 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
