@@ -11,40 +11,38 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-firebase.messaging();
+const messaging = firebase.messaging();
 
-// 1. Catch the hidden data from Python (When app is CLOSED)
-firebase.messaging().onBackgroundMessage(function(payload) {
-  const notificationTitle = payload.data.title;
-  
+// 1. Catch hidden data (App Closed)
+messaging.onBackgroundMessage(function(payload) {
   const notificationOptions = {
     body: payload.data.body,
     icon: 'https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png',
-    data: {
-          url: payload.data.url 
-          notice: payload.data.notice_link
-    } 
+    data: payload.data.url // Storing the URL directly
   };
-
-  // The 'return' stops Android from killing the script early!
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  return self.registration.showNotification(payload.data.title, notificationOptions);
 });
 
-// 2. Handle the Click Action
+// 2. Bulletproof Click Handler
 self.addEventListener('notificationclick', function(event) {
-
   event.notification.close();
-
-  let target = event.notification.data.url;
-
-  if(event.notification.data.notice){
-      target = target + "?notice=" + encodeURIComponent(event.notification.data.notice);
-  }
-
+  
+  // Fallback to your site URL just in case data gets lost
+  const targetUrl = event.notification.data || 'https://designswithharshit.github.io/KMC-Notifier/';
+  
   event.waitUntil(
-      clients.openWindow(target)
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      // If website is already open in background, focus it
+      for (let i = 0; i < clientList.length; i++) {
+        let client = clientList[i];
+        if (client.url === targetUrl && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Otherwise, open a brand new tab
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
   );
-
 });
-
-
