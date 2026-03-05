@@ -21,7 +21,7 @@ firebase.messaging().onBackgroundMessage(function(payload) {
     body: payload.data.body,
     icon: 'https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png',
     data: {
-          url: payload.data.url 
+          url: payload.data.url,
           notice: payload.data.notice_link
     } 
   };
@@ -37,12 +37,26 @@ self.addEventListener('notificationclick', function(event) {
 
   let target = event.notification.data.url;
 
-  if(event.notification.data.notice){
+  if (event.notification.data.notice) {
       target = target + "?notice=" + encodeURIComponent(event.notification.data.notice);
   }
 
   event.waitUntil(
-      clients.openWindow(target)
+    clients.matchAll({type: "window", includeUncontrolled: true}).then(function(clientList) {
+
+      for (let client of clientList) {
+        if (client.url.includes("KMC-Notifier") && 'focus' in client) {
+          client.navigate(target);
+          return client.focus();
+        }
+      }
+
+      if (clients.openWindow) {
+        return clients.openWindow(target);
+      }
+
+    })
   );
 
 });
+
