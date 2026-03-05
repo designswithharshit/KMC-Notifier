@@ -11,10 +11,12 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
+firebase.messaging();
 
 // 1. Catch the hidden data from Python (When app is CLOSED)
-messaging.onBackgroundMessage(function(payload) {
+firebase.messaging().onBackgroundMessage(function(payload) {
+  const notificationTitle = payload.data.title;
+  
   const notificationOptions = {
     body: payload.data.body,
     icon: 'https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png',
@@ -22,7 +24,7 @@ messaging.onBackgroundMessage(function(payload) {
   };
 
   // The 'return' stops Android from killing the script early!
-  return self.registration.showNotification(payload.data.title, notificationOptions);
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 // 2. Handle the Click Action
@@ -44,4 +46,5 @@ self.addEventListener('notificationclick', function(event) {
     });
   );
 });
+
 
