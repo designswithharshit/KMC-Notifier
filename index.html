@@ -97,17 +97,15 @@
         Notification.requestPermission().then((permission) => {
             if (permission === 'granted') {
                 
-                navigator.serviceWorker.register('firebase-messaging-sw.js');
+                navigator.serviceWorker.register('firebase-messaging-sw.js')
+                .then((registration) => {
                 
-                navigator.serviceWorker.ready.then(function(registration) {
-                    
-                    // FIXED VAPID KEY (Added the 'E' back to the end!)
-                    const myVapidKey = "BNS5mDNvT2NybDFcHW6tPxRMfEU8dvXVk8eDB_u9RllA7a5nwGTFZkhHtmYqAloLafB9Ukhl5LGK4wOYbto".trim();
-                    
-                    return messaging.getToken({ 
-                        vapidKey: myVapidKey, 
-                        serviceWorkerRegistration: registration 
-                    });
+                const myVapidKey = "BNS5mDNvT2NybDFcHW6tPxR-MfEU8dvXVk8eDB_u9R-llA7a5nwGTFZkhHtmYqAloLaf-B9Ukhl5LG-K4wOYbto";
+                
+                return messaging.getToken({
+                    vapidKey: myVapidKey,
+                    serviceWorkerRegistration: registration
+                });
                     
                 }).then((currentToken) => {
                     if (currentToken) {
@@ -178,6 +176,7 @@
     
 </body>
 </html>
+
 
 
 
