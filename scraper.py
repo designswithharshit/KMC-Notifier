@@ -48,13 +48,20 @@ def get_rich_notice_data(notice_url):
 
         for img in card_body.find_all('img'):
             src = img.get('src')
-            if not src: continue
-            if src.startswith('data:image'):
-                extracted_data["text"] += "<br><br><i>[ 🖼️ Notice contains an embedded poster. Click 'View Full Notice' below to see it. ]</i>"
+        
+            if not src:
                 continue
+        
+            # skip base64 embedded images
+            if src.startswith('data:image'):
+                continue
+        
+            # convert relative path to full url
             if src.startswith('/'):
                 src = "https://kmc.du.ac.in" + src
-            extracted_data["images"].append(src)
+        
+            if src not in extracted_data["images"]:
+                extracted_data["images"].append(src)
 
     if card_footer:
         fonts = card_footer.find_all('font')
@@ -175,8 +182,16 @@ def get_and_filter_notices():
     for key in keys_to_delete:
         del notices_db[key]
 
+    sorted_notices = dict(
+    sorted(
+        notices_db.items(),
+        key=lambda item: item[1]["discovered_on"],
+        reverse=True
+        )
+    )
+    
     with open(db_file, "w", encoding="utf-8") as f:
-        json.dump(notices_db, f, indent=4)
+        json.dump(sorted_notices, f, indent=4)
 
     if new_notices_list:
         print("Triggering Firebase Push Notifications...")
@@ -187,6 +202,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
