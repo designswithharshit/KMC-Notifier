@@ -99,6 +99,9 @@ def send_push_notifications(db, new_notices):
             webpush=messaging.WebpushConfig(
                 notification=messaging.WebpushNotification(
                     icon='https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png'
+                ),
+                fcm_options=messaging.WebpushFCMOptions(
+                    link='https://designswithharshit.github.io/KMC-Notifier/'
                 )
             ),
             tokens=tokens
@@ -183,6 +186,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
