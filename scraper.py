@@ -104,9 +104,16 @@ def send_push_notifications(db, new_notices):
     # Blast it out
     try:
         response = messaging.send_each_for_multicast(message)
+
         print(f"Successfully sent {response.success_count} push notifications!")
-        if response.failure_count > 0:
-            print(f"Failed to send {response.failure_count} notifications.")
+        print(f"Failed to send {response.failure_count} notifications.")
+        
+        # Remove invalid tokens automatically
+        for idx, resp in enumerate(response.responses):
+            if not resp.success:
+                bad_token = tokens[idx]
+                print(f"Removing invalid token: {bad_token}")
+                db.collection('tokens').document(bad_token).delete()
     except Exception as e:
         print(f"Error sending notifications: {e}")
 
@@ -180,6 +187,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
