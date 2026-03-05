@@ -109,7 +109,10 @@
                     
                 }).then((currentToken) => {
                     if (currentToken) {
-                        db.collection('tokens').doc(currentToken).set({ token: currentToken })
+                        db.collection('tokens').doc(currentToken).set({
+                            token: currentToken,
+                            created: Date.now()
+                        })
                         .then(() => {
                             btn.innerText = "✅ Notifications Enabled!";
                             btn.style.backgroundColor = "#28a745";
@@ -176,6 +179,7 @@
     
 </body>
 </html>
+
 
 
 
