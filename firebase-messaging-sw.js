@@ -13,24 +13,22 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// 1. Catch the hidden data from Python and show the notification
+// 1. Catch the hidden data from Python (When app is CLOSED)
 messaging.onBackgroundMessage(function(payload) {
-  const notificationTitle = payload.data.title;
   const notificationOptions = {
     body: payload.data.body,
     icon: 'https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png',
-    data: {
-        url: payload.data.url // Save the URL so the click function can find it
-    }
+    data: { url: payload.data.url } 
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  // The 'return' stops Android from killing the script early!
+  return self.registration.showNotification(payload.data.title, notificationOptions);
 });
 
-// 2. Handle what happens when the user clicks the notification
+// 2. Handle the Click Action
 self.addEventListener('notificationclick', function(event) {
-  event.notification.close(); // Close the pop-up
+  event.notification.close();
   event.waitUntil(
-    clients.openWindow(event.notification.data.url) // Open the website
+    clients.openWindow(event.notification.data.url)
   );
 });
