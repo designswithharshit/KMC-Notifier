@@ -35,31 +35,14 @@ self.addEventListener('notificationclick', function(event) {
 
   event.notification.close();
 
-  const noticeLink = event.notification.data.notice;
   let target = event.notification.data.url;
 
-  if (noticeLink) {
-    target = target + "?notice=" + encodeURIComponent(noticeLink);
+  if(event.notification.data.notice){
+      target = target + "?notice=" + encodeURIComponent(event.notification.data.notice);
   }
 
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then(function(clientList) {
-
-      for (let i = 0; i < clientList.length; i++) {
-        const client = clientList[i];
-
-        if (client.url.includes("KMC-Notifier") && "focus" in client) {
-          client.navigate(target);
-          return client.focus();
-        }
-      }
-
-      if (clients.openWindow) {
-        return clients.openWindow(target);
-      }
-
-    })
+      clients.openWindow(target)
   );
 
 });
-
