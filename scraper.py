@@ -90,20 +90,13 @@ def send_push_notifications(db, new_notices):
         title = f"📢 {len(new_notices)} New KMC Notices"
         notice_body = "Tap to view the latest updates on the notice board."
 
-    # Build the push message
+    # Build a DATA-ONLY push message
     message = messaging.MulticastMessage(
-            notification=messaging.Notification(
-                title=title,
-                body=notice_body
-            ),
-            webpush=messaging.WebpushConfig(
-                notification=messaging.WebpushNotification(
-                    icon='https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png'
-                ),
-                fcm_options=messaging.WebpushFCMOptions(
-                    link='https://designswithharshit.github.io/KMC-Notifier/'
-                )
-            ),
+            data={
+                'title': title,
+                'body': notice_body,
+                'url': 'https://designswithharshit.github.io/KMC-Notifier/'
+            },
             tokens=tokens
     )
     
@@ -186,6 +179,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
