@@ -172,6 +172,19 @@
                 </div>
             `;
         });
+
+        const params = new URLSearchParams(window.location.search);
+        const noticeLink = params.get("notice");
+        
+            if(noticeLink){
+                setTimeout(()=>{
+                    const noticeElement = document.querySelector(`a[href="${noticeLink}"]`);
+                    if(noticeElement){
+                        noticeElement.scrollIntoView({behavior:"smooth"});
+                    }
+                },500);
+            }
+        
     }).catch(err => {
         document.getElementById('notices').innerHTML = '<p style="text-align:center;">Updates arriving soon...</p>';
     });
@@ -179,6 +192,7 @@
     
 </body>
 </html>
+
 
 
 
