@@ -20,7 +20,10 @@ firebase.messaging().onBackgroundMessage(function(payload) {
   const notificationOptions = {
     body: payload.data.body,
     icon: 'https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png',
-    data: { url: payload.data.url } 
+    data: {
+          url: payload.data.url 
+          notice: payload.data.notice_link
+    } 
   };
 
   // The 'return' stops Android from killing the script early!
@@ -29,22 +32,19 @@ firebase.messaging().onBackgroundMessage(function(payload) {
 
 // 2. Handle the Click Action
 self.addEventListener('notificationclick', function(event) {
+
   event.notification.close();
+
+  let target = event.notification.data.url;
+
+  if(event.notification.data.notice){
+      target = target + "?notice=" + encodeURIComponent(event.notification.data.notice);
+  }
+
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true })
-    .then((clientList) => {
-    
-    for (const client of clientList) {
-        if (client.url === event.notification.data.url && "focus" in client) {
-            return client.focus();
-        }
-    }
-    
-    if (clients.openWindow) {
-        return clients.openWindow(event.notification.data.url);
-    }
-    });
+      clients.openWindow(target)
   );
+
 });
 
 
