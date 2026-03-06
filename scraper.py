@@ -48,8 +48,7 @@ def get_rich_notice_data(notice_url):
                     href = "https://kmc.du.ac.in" + href
                 extracted_data["pdfs"].append(href)
 
-       for img in card_body.find_all('img'):
-
+        for img in card_body.find_all('img'):
             src = img.get('src')
         
             if not src:
@@ -216,6 +215,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
