@@ -5,6 +5,8 @@ import os
 from datetime import datetime, timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging
+import base64
+import uuid
 
 # 1. Initialize Firebase (Using GitHub Secrets)
 def init_firebase():
@@ -52,9 +54,20 @@ def get_rich_notice_data(notice_url):
             if not src:
                 continue
         
-            # skip base64 embedded images
+            # convert base64 image to real file and store locally
             if src.startswith('data:image'):
-                continue
+            header, encoded = src.split(',', 1)
+            image_data = base64.b64decode(encoded)
+        
+            filename = f"images/{uuid.uuid4()}.jpg"
+        
+            os.makedirs("images", exist_ok=True)
+        
+            with open(filename, "wb") as f:
+                f.write(image_data)
+        
+            extracted_data["images"].append(filename)
+            continue
         
             # convert relative path to full url
             if src.startswith('/'):
@@ -145,7 +158,7 @@ def get_and_filter_notices():
     sidebar = soup.find('div', class_='sidebar-box-inner')
 
     current_time = datetime.now()
-    seven_days_ago = current_time - timedelta(days=7)
+    seven_days_ago = current_time - timedelta(days=30)
     
     notices = sidebar.find_all('li')
     new_notices_list = [] 
@@ -178,7 +191,7 @@ def get_and_filter_notices():
             print(f"New Notice Found & Processed: {title}")
 
     # Clean up notices older than 7 days to keep the website fast
-    keys_to_delete = [link for link, data in notices_db.items() if datetime.strptime(data["discovered_on"], "%Y-%m-%d %H:%M:%S") < seven_days_ago]
+    keys_to_delete = [link for link, data in notices_db.items() if datetime.strptime(data["discovered_on"], "%Y-%m-%d %H:%M:%S") < thirty_days_ago]
     for key in keys_to_delete:
         del notices_db[key]
 
@@ -202,6 +215,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
