@@ -5,8 +5,6 @@ import os
 from datetime import datetime, timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging
-import base64
-import uuid
 
 # 1. Initialize Firebase (Using GitHub Secrets)
 def init_firebase():
@@ -40,7 +38,7 @@ def get_rich_notice_data(notice_url):
     extracted_data = {"text": "", "date": "Unknown Date", "pdfs": [], "images": []}
 
     if card_body:
-        extracted_data["text"] = card_body.get_text(separator='<br><br>', strip=True)
+        extracted_data["text"] = card_body.decode_contents()
         for a_tag in card_body.find_all('a'):
             href = a_tag.get('href')
             if href and '.pdf' in href.lower():
@@ -56,19 +54,9 @@ def get_rich_notice_data(notice_url):
         
             # convert base64 image to real file and store locally
             if src.startswith('data:image'):
-                header, encoded = src.split(',', 1)
-                image_data = base64.b64decode(encoded)
-        
-                os.makedirs("images", exist_ok=True)
-        
-                filename = f"images/{uuid.uuid4()}.jpg"
-        
-                with open(filename, "wb") as f:
-                    f.write(image_data)
-        
-                extracted_data["images"].append(filename)
+                extracted_data["images"].append(src)
                 continue
-        
+            
             # convert relative path to full url
             if src.startswith('/'):
                 src = "https://kmc.du.ac.in" + src
@@ -215,6 +203,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
