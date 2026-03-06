@@ -48,7 +48,8 @@ def get_rich_notice_data(notice_url):
                     href = "https://kmc.du.ac.in" + href
                 extracted_data["pdfs"].append(href)
 
-        for img in card_body.find_all('img'):
+       for img in card_body.find_all('img'):
+
             src = img.get('src')
         
             if not src:
@@ -56,18 +57,18 @@ def get_rich_notice_data(notice_url):
         
             # convert base64 image to real file and store locally
             if src.startswith('data:image'):
-            header, encoded = src.split(',', 1)
-            image_data = base64.b64decode(encoded)
+                header, encoded = src.split(',', 1)
+                image_data = base64.b64decode(encoded)
         
-            filename = f"images/{uuid.uuid4()}.jpg"
+                os.makedirs("images", exist_ok=True)
         
-            os.makedirs("images", exist_ok=True)
+                filename = f"images/{uuid.uuid4()}.jpg"
         
-            with open(filename, "wb") as f:
-                f.write(image_data)
+                with open(filename, "wb") as f:
+                    f.write(image_data)
         
-            extracted_data["images"].append(filename)
-            continue
+                extracted_data["images"].append(filename)
+                continue
         
             # convert relative path to full url
             if src.startswith('/'):
@@ -215,6 +216,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
