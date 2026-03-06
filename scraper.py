@@ -158,7 +158,7 @@ def get_and_filter_notices():
     sidebar = soup.find('div', class_='sidebar-box-inner')
 
     current_time = datetime.now()
-    seven_days_ago = current_time - timedelta(days=30)
+    thirty_days_ago = current_time - timedelta(days=30)
     
     notices = sidebar.find_all('li')
     new_notices_list = [] 
@@ -215,6 +215,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
