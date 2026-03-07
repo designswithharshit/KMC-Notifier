@@ -177,14 +177,20 @@ def get_and_filter_notices():
 
     for notice in notices:
         link_tag = notice.find('a')
-        if not link_tag: continue
+        if not link_tag:
+            continue
             
         title = link_tag.text.strip()
         link = link_tag.get('href')
-        
-        if "Back to Home" in title: continue
 
-        if link not in notices_db:
+        # Ignore non-notice links
+        if "Back to Home" in title:
+            continue
+
+        if link in notices_db:
+            print("Reached known notices, stopping scrape.")
+            break
+
             # We fetch the rich data IMMEDIATELY so it's saved in the JSON for the website
             rich_data = get_rich_notice_data(link)
             notice_date = parse_notice_date(rich_data.get("date"), current_time)
@@ -231,6 +237,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
