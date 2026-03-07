@@ -55,6 +55,11 @@ def get_rich_notice_data(notice_url):
         
             # convert base64 image to real file and store locally
             if src.startswith('data:image'):
+
+                # ignore duplicate base64 image already inside notice text
+                if src in extracted_data["text"]:
+                    continue
+
                 extracted_data["images"].append(src)
                 continue
             
@@ -226,6 +231,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
