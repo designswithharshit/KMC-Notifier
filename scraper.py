@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
-import re
 from datetime import datetime, timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging
@@ -55,11 +54,6 @@ def get_rich_notice_data(notice_url):
         
             # convert base64 image to real file and store locally
             if src.startswith('data:image'):
-
-                # ignore duplicate base64 image already inside notice text
-                if src in extracted_data["text"]:
-                    continue
-
                 extracted_data["images"].append(src)
                 continue
             
@@ -131,19 +125,6 @@ def send_push_notifications(db, new_notices):
     except Exception as e:
         print(f"Error sending notifications: {e}")
 
-def parse_notice_date(date_text, fallback):
-    if not date_text:
-        return fallback
-
-    match = re.search(r"(\d{2}-\d{2}-\d{4})", date_text)
-    if not match:
-        return fallback
-
-    try:
-        return datetime.strptime(match.group(1), "%d-%m-%Y")
-    except ValueError:
-        return fallback
-
 # 4. The Main Scraper Function
 def get_and_filter_notices():
     db = init_firebase()
@@ -163,9 +144,6 @@ def get_and_filter_notices():
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     sidebar = soup.find('div', class_='sidebar-box-inner')
-    if not sidebar:
-        print("Notice list container not found.")
-        return
 
     current_time = datetime.now()
     thirty_days_ago = current_time - timedelta(days=30)
@@ -177,28 +155,16 @@ def get_and_filter_notices():
 
     for notice in notices:
         link_tag = notice.find('a')
-        if not link_tag:
-            continue
+        if not link_tag: continue
             
         title = link_tag.text.strip()
         link = link_tag.get('href')
+        
+        if "Back to Home" in title: continue
 
-        # Ignore non-notice links
-        if "Back to Home" in title:
-            continue
-
-        if link in notices_db:
-            print("Reached known notices, stopping scrape.")
-            break
-
+        if link not in notices_db:
             # We fetch the rich data IMMEDIATELY so it's saved in the JSON for the website
             rich_data = get_rich_notice_data(link)
-            notice_date = parse_notice_date(rich_data.get("date"), current_time)
-
-            # Ignore notices older than 30 days
-            if notice_date < thirty_days_ago:
-                print(f"Skipping old notice: {title}")
-                continue
             
             notices_db[link] = {
                 "title": title,
@@ -212,16 +178,16 @@ def get_and_filter_notices():
             new_notices_list.append(notices_db[link])
             print(f"New Notice Found & Processed: {title}")
 
-    # Clean up notices older than 30 days to keep the website fast
+    # Clean up notices older than 7 days to keep the website fast
     keys_to_delete = [link for link, data in notices_db.items() if datetime.strptime(data["discovered_on"], "%Y-%m-%d %H:%M:%S") < thirty_days_ago]
     for key in keys_to_delete:
         del notices_db[key]
 
     sorted_notices = dict(
-        sorted(
-            notices_db.items(),
-            key=lambda item: item[1]["discovered_on"],
-            reverse=True
+    sorted(
+        notices_db.items(),
+        key=lambda item: item[1]["discovered_on"],
+        reverse=True
         )
     )
     
@@ -237,11 +203,6 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
-
-
-
-
-
 
 
 
