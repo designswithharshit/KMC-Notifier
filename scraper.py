@@ -137,7 +137,7 @@ def get_and_filter_notices():
     # ignore notices older than 30 days
     if notice_date < current_time - timedelta(days=30):
         print("Skipping old notice:", title)
-        continue
+    continue
     
     db = init_firebase()
     
@@ -223,6 +223,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
