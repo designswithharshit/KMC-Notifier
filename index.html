@@ -8,6 +8,63 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+
+        .header{
+            background-color: var(--kmc-maroon);
+            padding:20px;
+            color:white;
+            border-bottom:4px solid #d4af37;
+        }
+
+        .header-bar{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+        }
+
+        .header-left{
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+
+        .header-left h1{
+            font-size:24px;
+            margin:0;
+        }
+
+        .kmc-logo{
+            width:42px;
+            height:42px;
+            background:white;
+            border-radius:50%;
+            padding:3px;
+        }
+
+        .github-btn{
+            background:white;
+            color:#450000;
+            padding:6px 10px;
+            border-radius:4px;
+            font-size:13px;
+            text-decoration:none;
+        }
+
+        .github-btn:hover{
+            background:#f0f0f0;
+        }
+
+        .note{
+            margin-top:10px;
+            font-size:12px;
+            color:#777777;
+            padding-left: 6%;
+        }
+
+        .github-link:hover{
+            text-decoration:underline;
+        }
+
         :root {
             --kmc-maroon: #450000;
             --kmc-bg: #FFFCF2;
@@ -28,7 +85,7 @@
         }
 
         ::selection { background: #b3d4fc; text-shadow: none; }
-        .container { max-width: 800px; margin: 30px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; }
+        .container { max-width: 900px; margin: 30px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; }
         .header { background-color: var(--kmc-maroon); padding: 30px 20px; text-align: center; color: white; border-bottom: 4px solid #d4af37; }
         .header h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 0.5px; }
         .btn-notify { background-color: white; color: var(--kmc-maroon); border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; font-family: 'Roboto', sans-serif; cursor: pointer; margin-top: 15px; transition: all 0.2s ease; }
@@ -42,20 +99,55 @@
         .btn-pdf { background-color: var(--bs-red); color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 13px; margin-right: 10px; margin-top: 10px; display: inline-block; font-weight: bold; }
         .btn-link { display: inline-block; color: var(--kmc-maroon); text-decoration: none; font-size: 14px; font-weight: bold; margin-top: 15px; }
         .btn-link:hover { text-decoration: underline; }
+
+        .footer{
+            margin-top:40px;
+            padding:20px;
+            text-align:center;
+            font-size:14px;
+            color:#666;
+            border-top:1px solid #eee;
+        }
+
+        .footer-links a{
+            margin:0 10px;
+            color:#450000;
+            text-decoration:none;
+        }
+
+        .footer-links a:hover{
+            text-decoration:underline;
+        }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>ðŸ“¢ KMC Notice Board</h1>
-        <button class="btn-notify" id="notifyBtn" onclick="requestPermission()">ðŸ”” Get Push Notifications</button>
-    </div>
-    <div class="notice-list" id="notices">
-        <p style="text-align:center;">Loading latest notices...</p>
+<div class="header">
+
+    <div class="header-bar">
+
+        <div class="header-left">
+            <img src="https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png" class="kmc-logo">
+            <h1>KMC Notice Board</h1>
+        </div>
+
+        <div class="header-right">
+            <a href="https://github.com/designswithharshit/KMC-Notifier" target="_blank" class="github-btn">
+                View Project
+            </a>
+        </div>
     </div>
 </div>
-
+    <div class="note">
+        Note: This website is not affiliated with 
+        <a href="https://kmc.du.ac.in" target="_blank">Kirori Mal College</a>. 
+        All information displayed here is publicly available on the official college website.
+    </div>
+        <div class="notice-list" id="notices">
+            <p style="text-align:center;">Loading latest notices...</p>
+        </div>
+    </div>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -118,7 +210,7 @@
                             created: Date.now()
                         })
                         .then(() => {
-                            btn.innerText = "âœ… Notifications Enabled!";
+                            btn.innerText = "✅ Notifications Enabled!";
                             btn.style.backgroundColor = "#28a745";
                             btn.style.color = "white";
                         });
@@ -126,10 +218,10 @@
                 }).catch((err) => {
                     alert("TOKEN ERROR: " + err.message);
                     console.error('Error getting token', err);
-                    btn.innerText = "âŒ Error. Try Again.";
+                    btn.innerText = "❌ Error. Try Again.";
                 });
             } else {
-                btn.innerText = "ðŸ”• Notifications Blocked";
+                btn.innerText = "🔕 Notifications Blocked";
             }
         });
     }
@@ -172,7 +264,7 @@
             let pdfButtons = '';
             if (notice.pdfs) {
                 notice.pdfs.forEach(url => {
-                    pdfButtons += `<a href="${url}" class="btn-pdf" target="_blank">ðŸ“„ Download PDF</a>`;
+                    pdfButtons += `<a href="${url}" class="btn-pdf" target="_blank">📄 Download PDF</a>`;
                 });
             }
 
@@ -185,7 +277,7 @@
 
             container.innerHTML += `
             <div class="card">
-                <div class="card-date">ðŸ“… ${notice.date || 'Recent'}</div>
+                <div class="card-date">📅 ${notice.date || 'Recent'}</div>
                 <h3 class="card-title">${notice.title}</h3>
 
                 <div class="card-text">
@@ -217,18 +309,19 @@
     }
 
 </script>
-    
+
+<footer class="footer">
+
+<p>
+Built with ❤️ by <strong>Harshit</strong>
+</p>
+
+<div class="footer-links">
+<a href="credits.html">Credits</a>
+<a href="https://github.com/designswithharshit/KMC-Notifier" target="_blank">GitHub</a>
+</div>
+
+</footer>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
