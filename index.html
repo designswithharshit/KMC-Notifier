@@ -29,7 +29,7 @@
         }
 
         .header-left h1{
-            font-size:24px;
+            font-size: 26px;
             margin:0;
         }
 
@@ -88,7 +88,7 @@
         .container { max-width: 900px; margin: 30px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; }
         .header { background-color: var(--kmc-maroon); padding: 30px 20px; text-align: center; color: white; border-bottom: 4px solid #d4af37; }
         .header h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 0.5px; }
-        .btn-notify { background-color: white; color: var(--kmc-maroon); border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; font-family: 'Roboto', sans-serif; cursor: pointer; margin-top: 15px; transition: all 0.2s ease; }
+        .btn-notify { align-content: right; background-color: white; color: var(--kmc-maroon); border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; font-family: 'Roboto', sans-serif; cursor: pointer; margin-top: 15px; margin-bottom: 15px; transition: all 0.2s ease; }
         .btn-notify:hover { background-color: #f0f0f0; }
         .notice-list { padding: 30px 25px; }
         .card { margin-bottom: 30px; padding: 25px; border: 1px solid #eaeaea; border-radius: 6px; background-color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.02); border-left: 4px solid var(--kmc-maroon); }
@@ -110,14 +110,36 @@
         }
 
        .footer-links a:not(:last-child)::after{
-        content:" |";
+        content:"|";
         margin-left:10px;
+        margin-right:10px;
         color:#aaa;
         }
         .footer-links a:hover{
             text-decoration:underline;
         }
-
+        .footer-links a{
+            color:#5c10c0;
+            text-decoration:none;
+            font-weight:500;
+        }
+        .harshit{
+            color:#f26516;
+            text-decoration:none;
+        }
+        .browser-settings{
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 8px 20px;
+            margin-left: 6%;
+            margin-right: auto;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            max-width: 900px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -130,12 +152,13 @@
             <img src="https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png" class="kmc-logo">
             <h1>📢 KMC Notifier</h1>
         </div>
+        <button class="btn-notify" id="notifyBtn" onclick="requestPermission()">🔔 Get Push Notifications</button>
     </div>
-    <button class="btn-notify" id="notifyBtn" onclick="requestPermission()">🔔 Get Push Notifications</button>
 </div>
+<div class="browser-settings"><strong>Make sure to allow browser notifications in your app settings.</strong></div>
     <div class="note">
         Note: This website is not affiliated with 
-        <a href="https://kmc.du.ac.in" target="_blank">Kirori Mal College</a>. 
+        <a href="https://kmc.du.ac.in" target="_blank" style="color: #5c10c0;">Kirori Mal College</a>. 
         All information displayed here is publicly available on the official college website.
     </div>
         <div class="notice-list" id="notices">
@@ -282,7 +305,7 @@
 
                 <div style="margin-top:20px;padding-top:10px;">
                     ${pdfButtons}
-                    <a href="${notice.link}" class="btn-link" target="_blank">Official Link â†’</a>
+                    <a href="${notice.link}" class="btn-link" target="_blank">Official Link &rarr;</a>
                 </div>
             </div>
             `;
@@ -306,9 +329,9 @@
 
 <footer class="footer">
 
-<p>
-Built with ❤️ by <a href="https://www.instagram.com/designswithharshit/" target="_blank"><strong>Harshit</strong></a>
-</p>
+<blockquote>    
+Built with 🧡 by <a href="https://www.instagram.com/designswithharshit/" target="_blank" class="harshit" ><strong>Harshit</strong></a>
+</blockquote>
 
 <div class="footer-links">
 
@@ -333,5 +356,6 @@ Send Feedback
 </body>
 
 </html>
+
 
 
