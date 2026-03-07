@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -48,8 +48,8 @@
 
 <div class="container">
     <div class="header">
-        <h1>📢 KMC Notice Board</h1>
-        <button class="btn-notify" id="notifyBtn" onclick="requestPermission()">🔔 Get Push Notifications</button>
+        <h1>ðŸ“¢ KMC Notice Board</h1>
+        <button class="btn-notify" id="notifyBtn" onclick="requestPermission()">ðŸ”” Get Push Notifications</button>
     </div>
     <div class="notice-list" id="notices">
         <p style="text-align:center;">Loading latest notices...</p>
@@ -118,7 +118,7 @@
                             created: Date.now()
                         })
                         .then(() => {
-                            btn.innerText = "✅ Notifications Enabled!";
+                            btn.innerText = "âœ… Notifications Enabled!";
                             btn.style.backgroundColor = "#28a745";
                             btn.style.color = "white";
                         });
@@ -126,105 +126,101 @@
                 }).catch((err) => {
                     alert("TOKEN ERROR: " + err.message);
                     console.error('Error getting token', err);
-                    btn.innerText = "❌ Error. Try Again.";
+                    btn.innerText = "âŒ Error. Try Again.";
                 });
             } else {
-                btn.innerText = "🔕 Notifications Blocked";
+                btn.innerText = "ðŸ”• Notifications Blocked";
             }
         });
     }
-    
     // 3. Load Notices from JSON
-        fetch('notices.json')
+    fetch('notices.json')
         .then(response => response.json())
         .then(data => {
-        
             noticesArray = Object.values(data).sort(
-                (a,b) => new Date(b.discovered_on) - new Date(a.discovered_on)
+                (a, b) => new Date(b.discovered_on) - new Date(a.discovered_on)
             );
-        
+
             renderNotices();
-        
-        }).catch(err => {
+
+            const params = new URLSearchParams(window.location.search);
+            const noticeLink = params.get("notice");
+
+            if (noticeLink) {
+                setTimeout(() => {
+                    const noticeElement = document.querySelector(`a[href="${noticeLink}"]`);
+                    if (noticeElement) {
+                        noticeElement.scrollIntoView({ behavior: "smooth" });
+                    }
+                }, 500);
+            }
+        })
+        .catch(() => {
             document.getElementById('notices').innerHTML =
-            '<p style="text-align:center;">Updates arriving soon...</p>';
+                '<p style="text-align:center;">Updates arriving soon...</p>';
         });
 
-        function renderNotices(){
+    function renderNotices() {
 
-            const container = document.getElementById('notices');
-            container.innerHTML = '';
-        
-            const visible = noticesArray.slice(0, visibleCount);
-        
-            visible.forEach(notice => {
-        
-                let pdfButtons = '';
-                if (notice.pdfs){
-                    notice.pdfs.forEach(url=>{
-                        pdfButtons += `<a href="${url}" class="btn-pdf" target="_blank">📄 Download PDF</a>`;
-                    });
-                }
-        
-                let imagesHtml = '';
-                if (notice.images){
-                    notice.images.forEach(src=>{
-                        imagesHtml += `<img src="${src}">`;
-                    });
-                }
-        
-                container.innerHTML += `
-                <div class="card">
-                    <div class="card-date">📅 ${notice.date || 'Recent'}</div>
-                    <h3 class="card-title">${notice.title}</h3>
-        
-                    <div class="card-text">
-                        ${notice.text}
-                    </div>
-        
-                    ${imagesHtml}
-        
-                    <div style="margin-top:20px;padding-top:10px;">
-                        ${pdfButtons}
-                        <a href="${notice.link}" class="btn-link" target="_blank">Official Link →</a>
-                    </div>
+        const container = document.getElementById('notices');
+        container.innerHTML = '';
+
+        const visible = noticesArray.slice(0, visibleCount);
+
+        visible.forEach(notice => {
+
+            let pdfButtons = '';
+            if (notice.pdfs) {
+                notice.pdfs.forEach(url => {
+                    pdfButtons += `<a href="${url}" class="btn-pdf" target="_blank">ðŸ“„ Download PDF</a>`;
+                });
+            }
+
+            let imagesHtml = '';
+            if (notice.images) {
+                notice.images.forEach(src => {
+                    imagesHtml += `<img src="${src}">`;
+                });
+            }
+
+            container.innerHTML += `
+            <div class="card">
+                <div class="card-date">ðŸ“… ${notice.date || 'Recent'}</div>
+                <h3 class="card-title">${notice.title}</h3>
+
+                <div class="card-text">
+                    ${notice.text}
                 </div>
-                `;
-            });
-        
-            if(visibleCount < noticesArray.length){
-                container.innerHTML += `
-                <div style="text-align:center;margin-top:20px;">
-                    <button onclick="loadMore()">Load More</button>
-                </div>`;
-            }
-        
+
+                ${imagesHtml}
+
+                <div style="margin-top:20px;padding-top:10px;">
+                    ${pdfButtons}
+                    <a href="${notice.link}" class="btn-link" target="_blank">Official Link â†’</a>
+                </div>
+            </div>
+            `;
+        });
+
+        if (visibleCount < noticesArray.length) {
+            container.innerHTML += `
+            <div style="text-align:center;margin-top:20px;">
+                <button onclick="loadMore()">Load More</button>
+            </div>`;
         }
 
-        function loadMore(){
-            visibleCount += 5;
-            renderNotices();
-        }
-    
-        const params = new URLSearchParams(window.location.search);
-        const noticeLink = params.get("notice");
-        
-            if(noticeLink){
-                setTimeout(()=>{
-                    const noticeElement = document.querySelector(`a[href="${noticeLink}"]`);
-                    if(noticeElement){
-                        noticeElement.scrollIntoView({behavior:"smooth"});
-                    }
-                },500);
-            }
-        
-    }).catch(err => {
-        document.getElementById('notices').innerHTML = '<p style="text-align:center;">Updates arriving soon...</p>';
-    });
+    }
+
+    function loadMore() {
+        visibleCount += 5;
+        renderNotices();
+    }
+
 </script>
     
 </body>
 </html>
+
 
 
 

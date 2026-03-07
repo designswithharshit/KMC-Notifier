@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
+import re
 from datetime import datetime, timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging
@@ -125,20 +126,21 @@ def send_push_notifications(db, new_notices):
     except Exception as e:
         print(f"Error sending notifications: {e}")
 
+def parse_notice_date(date_text, fallback):
+    if not date_text:
+        return fallback
+
+    match = re.search(r"(\d{2}-\d{2}-\d{4})", date_text)
+    if not match:
+        return fallback
+
+    try:
+        return datetime.strptime(match.group(1), "%d-%m-%Y")
+    except ValueError:
+        return fallback
+
 # 4. The Main Scraper Function
 def get_and_filter_notices():
-
-    # convert notice date to datetime
-    try:
-        notice_date = datetime.strptime(rich_data["date"], "%d-%m-%Y")
-    except:
-        notice_date = current_time
-
-    # ignore notices older than 30 days
-    if notice_date < current_time - timedelta(days=30):
-        print("Skipping old notice:", title)
-    continue
-    
     db = init_firebase()
     
     url = "https://kmc.du.ac.in/kmcouter/collnews/NA/8888/All/All"
@@ -156,6 +158,9 @@ def get_and_filter_notices():
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     sidebar = soup.find('div', class_='sidebar-box-inner')
+    if not sidebar:
+        print("Notice list container not found.")
+        return
 
     current_time = datetime.now()
     thirty_days_ago = current_time - timedelta(days=30)
@@ -177,6 +182,12 @@ def get_and_filter_notices():
         if link not in notices_db:
             # We fetch the rich data IMMEDIATELY so it's saved in the JSON for the website
             rich_data = get_rich_notice_data(link)
+            notice_date = parse_notice_date(rich_data.get("date"), current_time)
+
+            # Ignore notices older than 30 days
+            if notice_date < thirty_days_ago:
+                print(f"Skipping old notice: {title}")
+                continue
             
             notices_db[link] = {
                 "title": title,
@@ -190,19 +201,11 @@ def get_and_filter_notices():
             new_notices_list.append(notices_db[link])
             print(f"New Notice Found & Processed: {title}")
 
-    # Clean up notices older than 7 days to keep the website fast
+    # Clean up notices older than 30 days to keep the website fast
     keys_to_delete = [link for link, data in notices_db.items() if datetime.strptime(data["discovered_on"], "%Y-%m-%d %H:%M:%S") < thirty_days_ago]
     for key in keys_to_delete:
         del notices_db[key]
 
-    sorted_notices = dict(
-    sorted(
-        notices_db.items(),
-        key=lambda item: item[1]["discovered_on"],
-        reverse=True
-        )
-    )
-    
     sorted_notices = dict(
         sorted(
             notices_db.items(),
