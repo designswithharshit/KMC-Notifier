@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -16,16 +16,38 @@
             border-bottom:4px solid #d4af37;
         }
 
-        .header-bar{
+        .header-main{
             display:flex;
             align-items:center;
-            justify-content:space-between;
+            flex-direction: column ;
+            gap: 12px;
         }
 
         .header-left{
             display:flex;
             align-items:center;
             gap:12px;
+        }
+
+         @media (min-width: 700px) {
+            .header-main{
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .btn-notify{
+                margin-top:0;
+            }
+            .browser-settings{
+                margin:15px 20%;
+                max-width: 80%;
+                padding:10px 15px;
+            }
+            .note{
+                margin: 15px 20%;
+                max-width: 80%;
+                padding:0 15px;
+            }
         }
 
         .header-left h1{
@@ -54,11 +76,23 @@
             background:#f0f0f0;
         }
 
+        .browser-settings{
+            background:#fff3cd;
+            color:#856404;
+            border:1px solid #ffeeba;
+            padding:10px 15px;
+            margin:15px auto;
+            max-width: 90%;
+            border-radius:4px;
+            font-size:14px;
+        }
+
         .note{
-            margin-top:10px;
             font-size:12px;
-            color:#777777;
-            padding-left: 6%;
+            color:#777;
+            margin: 15px auto;
+            max-width: 90%;
+            padding:0 15px;
         }
 
         .github-link:hover{
@@ -127,26 +161,14 @@
             color:#f26516;
             text-decoration:none;
         }
-        .browser-settings{
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-            padding: 8px 20px;
-            margin-left: 6%;
-            margin-right: auto;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            max-width: 900px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
+
     </style>
 </head>
 <body>
 
 <div class="header">
 
-    <div class="header-bar">
+    <div class="header-main">
 
         <div class="header-left">
             <img src="https://kmc.du.ac.in/home/officelogo/colllogo_new.fw.png" class="kmc-logo">
@@ -363,7 +385,6 @@ Send Feedback
 </body>
 
 </html>
-
 
 
 
