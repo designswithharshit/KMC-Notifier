@@ -204,10 +204,17 @@
 
     // 2. Notification Subscription Logic
     function requestPermission() {
+
+        if (!('serviceWorker' in navigator)) {
+                alert("Your browser does not support notifications.");
+                return;
+            }
+    
         const btn = document.getElementById('notifyBtn');
         btn.innerText = "Requesting...";
         
         Notification.requestPermission().then((permission) => {
+            
             if (permission === 'granted') {
                 
                 navigator.serviceWorker.register('firebase-messaging-sw.js')
@@ -241,7 +248,7 @@
                 btn.innerText = "🔕 Notifications Blocked";
             }
         });
-    }
+    }    
     // 3. Load Notices from JSON
     fetch('notices.json')
         .then(response => response.json())
@@ -356,6 +363,7 @@ Send Feedback
 </body>
 
 </html>
+
 
 
 
