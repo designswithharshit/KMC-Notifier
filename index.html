@@ -61,6 +61,10 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
+
+    let noticesArray = [];
+    let visibleCount = 5;
+        
     // 1. Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCoPs4FCINqAhX4EQ1k-kOzDCPLxHnFQNQ",
@@ -131,48 +135,77 @@
     }
     
     // 3. Load Notices from JSON
-    fetch('notices.json')
-    .then(response => response.json())
-    .then(data => {
-        const container = document.getElementById('notices');
-        container.innerHTML = ''; 
+        fetch('notices.json')
+        .then(response => response.json())
+        .then(data => {
         
-        const sortedNotices = Object.values(data).sort((a, b) => new Date(b.discovered_on) - new Date(a.discovered_on));
+            noticesArray = Object.values(data).sort(
+                (a,b) => new Date(b.discovered_on) - new Date(a.discovered_on)
+            );
         
-        sortedNotices.forEach(notice => {
-            let pdfButtons = '';
-            if (notice.pdfs && notice.pdfs.length > 0) {
-                notice.pdfs.forEach(url => {
-                    pdfButtons += `<a href="${url}" class="btn-pdf" target="_blank">📄 Download PDF</a>`;
-                });
-            }
+            renderNotices();
+        
+        }).catch(err => {
+            document.getElementById('notices').innerHTML =
+            '<p style="text-align:center;">Updates arriving soon...</p>';
+        });
 
-            let imagesHtml = '';
-            if (notice.images && notice.images.length > 0) {
-                notice.images.forEach(src => {
-                    imagesHtml += `<img src="${src}">`;
-                });
-            }
+        function renderNotices(){
 
-            container.innerHTML += `
+            const container = document.getElementById('notices');
+            container.innerHTML = '';
+        
+            const visible = noticesArray.slice(0, visibleCount);
+        
+            visible.forEach(notice => {
+        
+                let pdfButtons = '';
+                if (notice.pdfs){
+                    notice.pdfs.forEach(url=>{
+                        pdfButtons += `<a href="${url}" class="btn-pdf" target="_blank">📄 Download PDF</a>`;
+                    });
+                }
+        
+                let imagesHtml = '';
+                if (notice.images){
+                    notice.images.forEach(src=>{
+                        imagesHtml += `<img src="${src}">`;
+                    });
+                }
+        
+                container.innerHTML += `
                 <div class="card">
                     <div class="card-date">📅 ${notice.date || 'Recent'}</div>
                     <h3 class="card-title">${notice.title}</h3>
-                    
+        
                     <div class="card-text">
                         ${notice.text}
                     </div>
-
+        
                     ${imagesHtml}
-
-                    <div style="margin-top: 20px; padding-top: 10px;">
+        
+                    <div style="margin-top:20px;padding-top:10px;">
                         ${pdfButtons}
-                        <a href="${notice.link}" class="btn-link" target="_blank">Official Link &rarr;</a>
+                        <a href="${notice.link}" class="btn-link" target="_blank">Official Link →</a>
                     </div>
                 </div>
-            `;
-        });
+                `;
+            });
+        
+            if(visibleCount < noticesArray.length){
+                container.innerHTML += `
+                <div style="text-align:center;margin-top:20px;">
+                    <button onclick="loadMore()">Load More</button>
+                </div>`;
+            }
+        
+        }
 
+        function loadMore(){
+            visibleCount += 5;
+            renderNotices();
+        }
+    
         const params = new URLSearchParams(window.location.search);
         const noticeLink = params.get("notice");
         
@@ -192,6 +225,7 @@
     
 </body>
 </html>
+
 
 
 
