@@ -127,6 +127,18 @@ def send_push_notifications(db, new_notices):
 
 # 4. The Main Scraper Function
 def get_and_filter_notices():
+
+    # convert notice date to datetime
+    try:
+        notice_date = datetime.strptime(rich_data["date"], "%d-%m-%Y")
+    except:
+        notice_date = current_time
+
+    # ignore notices older than 30 days
+    if notice_date < current_time - timedelta(days=30):
+        print("Skipping old notice:", title)
+        continue
+    
     db = init_firebase()
     
     url = "https://kmc.du.ac.in/kmcouter/collnews/NA/8888/All/All"
@@ -191,6 +203,14 @@ def get_and_filter_notices():
         )
     )
     
+    sorted_notices = dict(
+        sorted(
+            notices_db.items(),
+            key=lambda item: item[1]["discovered_on"],
+            reverse=True
+        )
+    )
+    
     with open(db_file, "w", encoding="utf-8") as f:
         json.dump(sorted_notices, f, indent=4)
 
@@ -203,6 +223,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
