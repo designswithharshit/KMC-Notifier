@@ -109,12 +109,11 @@
             border-top:1px solid #eee;
         }
 
-        .footer-links a{
-            margin:0 10px;
-            color:#450000;
-            text-decoration:none;
+       .footer-links a:not(:last-child)::after{
+        content:" |";
+        margin-left:10px;
+        color:#aaa;
         }
-
         .footer-links a:hover{
             text-decoration:underline;
         }
@@ -307,12 +306,25 @@
 <footer class="footer">
 
 <p>
-Built with ❤️ by <strong>Harshit</strong>
+Built with ❤️ by <a href="https://www.instagram.com/designswithharshit/" target="_blank"><strong>Harshit</strong></a>
 </p>
 
 <div class="footer-links">
+
 <a href="credits.html">Credits</a>
-<a href="https://github.com/designswithharshit/KMC-Notifier" target="_blank">GitHub</a>
+
+<a href="https://github.com/designswithharshit/KMC-Notifier" target="_blank">
+GitHub
+</a>
+
+<a href="https://github.com/designswithharshit/KMC-Notifier/issues/new" target="_blank">
+Report Issue
+</a>
+
+<a href="https://tally.so/r/MeOEpp" target="_blank">
+Send Feedback
+</a>
+
 </div>
 
 </footer>
@@ -320,3 +332,4 @@ Built with ❤️ by <strong>Harshit</strong>
 </body>
 
 </html>
+
