@@ -149,6 +149,8 @@ def parse_notice_date(date_text, fallback):
 
 def save_paginated_json(notices):
 
+    print("Saving paginated JSON files...")
+
     os.makedirs(DATA_FOLDER, exist_ok=True)
 
     notices_list = list(notices.values())
@@ -264,6 +266,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
