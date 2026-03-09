@@ -51,6 +51,10 @@ def get_rich_notice_data(notice_url):
         
             if not src:
                 continue
+
+                #ignore duplicate base64 image already inside text
+                if src in extracted_data["text"]:
+                    continue
         
             # convert base64 image to real file and store locally
             if src.startswith('data:image'):
@@ -125,6 +129,19 @@ def send_push_notifications(db, new_notices):
     except Exception as e:
         print(f"Error sending notifications: {e}")
 
+def parse_notice_date(date_text, fallback):
+    if not date_text:
+        return fallback
+
+    match = re.search(r"(\d{2}-\d{2}-\d{4})", date_text)
+    if not match:
+        return fallback
+
+    try:
+        return datetime.strptime(match.group(1), "%d-%m-%Y")
+    except ValueError:
+        return fallback
+
 # 4. The Main Scraper Function
 def get_and_filter_notices():
     db = init_firebase()
@@ -144,7 +161,10 @@ def get_and_filter_notices():
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     sidebar = soup.find('div', class_='sidebar-box-inner')
-
+    if not sidebar:
+        print("Notice list container not found.")
+        return
+        
     current_time = datetime.now()
     thirty_days_ago = current_time - timedelta(days=30)
     
@@ -165,6 +185,8 @@ def get_and_filter_notices():
         if link not in notices_db:
             # We fetch the rich data IMMEDIATELY so it's saved in the JSON for the website
             rich_data = get_rich_notice_data(link)
+            notice_date = parse_notice_date(rich_data.get("date"), current_time)
+
             
             notices_db[link] = {
                 "title": title,
@@ -203,6 +225,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
