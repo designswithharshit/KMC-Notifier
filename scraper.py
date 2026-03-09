@@ -2,9 +2,14 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
+import re
 from datetime import datetime, timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging
+
+NOTICES_PER_PAGE = 20
+DATA_FOLDER = "data"
+session = requests.Session()
 
 # 1. Initialize Firebase (Using GitHub Secrets)
 def init_firebase():
@@ -25,7 +30,7 @@ def init_firebase():
 # 2. The Deep Dive Function
 def get_rich_notice_data(notice_url):
     headers = {'User-Agent': 'Mozilla/5.0'}
-    response = requests.get(notice_url, headers=headers)
+    response = session.get(notice_url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     
     main_window = soup.find('div', class_='col-md-9')
@@ -51,17 +56,17 @@ def get_rich_notice_data(notice_url):
         
             if not src:
                 continue
-
-                #ignore duplicate base64 image already inside text
-                if src in extracted_data["text"]:
-                    continue
         
-            # convert base64 image to real file and store locally
+            # ignore duplicate base64 image already inside text
+            if src.startswith("data:image") and src in extracted_data["text"]:
+                continue
+        
+            # keep base64 images
             if src.startswith('data:image'):
                 extracted_data["images"].append(src)
                 continue
-            
-            # convert relative path to full url
+        
+            # convert relative path
             if src.startswith('/'):
                 src = "https://kmc.du.ac.in" + src
         
@@ -138,9 +143,34 @@ def parse_notice_date(date_text, fallback):
         return fallback
 
     try:
-        return datetime.strptime(match.group(1), "%d-%m-%Y")
+        return (match.group(1), "%d-%m-%Y")
     except ValueError:
         return fallback
+
+def save_paginated_json(notices):
+
+    os.makedirs(DATA_FOLDER, exist_ok=True)
+
+    notices_list = list(notices.values())
+
+    pages = [
+        notices_list[i:i+NOTICES_PER_PAGE]
+        for i in range(0, len(notices_list), NOTICES_PER_PAGE)
+    ]
+
+    for i, page in enumerate(pages, start=1):
+        filename = f"{DATA_FOLDER}/page{i}.json"
+
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(page, f, indent=4)
+
+    index_data = {
+        "pages": len(pages),
+        "per_page": NOTICES_PER_PAGE
+    }
+
+    with open(f"{DATA_FOLDER}/index.json", "w", encoding="utf-8") as f:
+        json.dump(index_data, f, indent=4)
 
 # 4. The Main Scraper Function
 def get_and_filter_notices():
@@ -158,7 +188,7 @@ def get_and_filter_notices():
     else:
         notices_db = {}
 
-    response = requests.get(url, headers=headers)
+    response = session.get(url, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     sidebar = soup.find('div', class_='sidebar-box-inner')
     if not sidebar:
@@ -180,13 +210,16 @@ def get_and_filter_notices():
         title = link_tag.text.strip()
         link = link_tag.get('href')
         
-        if "Back to Home" in title: continue
+        if "Back to Home" in title:
+            continue
+        
+        if notices_db and link in notices_db:
+            print("Reached known notices. Stopping scrape.")
+            break
 
         if link not in notices_db:
             # We fetch the rich data IMMEDIATELY so it's saved in the JSON for the website
             rich_data = get_rich_notice_data(link)
-            notice_date = parse_notice_date(rich_data.get("date"), current_time)
-
             
             notices_db[link] = {
                 "title": title,
@@ -201,7 +234,11 @@ def get_and_filter_notices():
             print(f"New Notice Found & Processed: {title}")
 
     # Clean up notices older than 7 days to keep the website fast
-    keys_to_delete = [link for link, data in notices_db.items() if datetime.strptime(data["discovered_on"], "%Y-%m-%d %H:%M:%S") < thirty_days_ago]
+    keys_to_delete = [
+    link for link, data in notices_db.items()
+    if datetime.strptime(data.get("discovered_on","1970-01-01 00:00:00"), "%Y-%m-%d %H:%M:%S") < thirty_days_ago
+    ]
+    
     for key in keys_to_delete:
         del notices_db[key]
 
@@ -212,10 +249,12 @@ def get_and_filter_notices():
         reverse=True
         )
     )
-    
+
     with open(db_file, "w", encoding="utf-8") as f:
         json.dump(sorted_notices, f, indent=4)
-
+    
+    save_paginated_json(sorted_notices)
+    
     if new_notices_list:
         print("Triggering Firebase Push Notifications...")
         send_push_notifications(db, new_notices_list)
@@ -225,6 +264,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
