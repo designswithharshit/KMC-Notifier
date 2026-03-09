@@ -11,7 +11,7 @@
 
         .header{
             background-color: var(--kmc-maroon);
-            padding:20px;
+            padding:30px 20px;
             color:white;
             border-bottom:4px solid #d4af37;
         }
@@ -186,15 +186,14 @@
         <div class="notice-list" id="notices">
             <p style="text-align:center;">Loading latest notices...</p>
         </div>
-    </div>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
 
-    let noticesArray = [];
-    let visibleCount = 5;
+    let currentPage = 1;
+    let totalPages = 1;
         
     // 1. Firebase Configuration
     const firebaseConfig = {
@@ -272,86 +271,68 @@
         });
     }    
     // 3. Load Notices from JSON
-    fetch('notices.json')
-        .then(response => response.json())
-        .then(data => {
-            noticesArray = Object.values(data).sort(
-                (a, b) => new Date(b.discovered_on) - new Date(a.discovered_on)
-            );
+    fetch('data/index.json')
+    .then(r => r.json())
+    .then(info => {
+        totalPages = info.pages;
+        loadPage(currentPage);
+    })
+    .catch(() => {
+        document.getElementById('notices').innerHTML =
+            '<p style="text-align:center;">Updates arriving soon...</p>';
+    });
 
-            renderNotices();
+    function loadPage(page){
 
-            const params = new URLSearchParams(window.location.search);
-            const noticeLink = params.get("notice");
-
-            if (noticeLink) {
-                setTimeout(() => {
-                    const noticeElement = document.querySelector(`a[href="${noticeLink}"]`);
-                    if (noticeElement) {
-                        noticeElement.scrollIntoView({ behavior: "smooth" });
-                    }
-                }, 500);
-            }
-        })
-        .catch(() => {
-            document.getElementById('notices').innerHTML =
-                '<p style="text-align:center;">Updates arriving soon...</p>';
-        });
-
-    function renderNotices() {
-
+    fetch(`data/page${page}.json`)
+    .then(r => r.json())
+    .then(data => {
+    
         const container = document.getElementById('notices');
-        container.innerHTML = '';
-
-        const visible = noticesArray.slice(0, visibleCount);
-
-        visible.forEach(notice => {
-
-            let pdfButtons = '';
-            if (notice.pdfs) {
-                notice.pdfs.forEach(url => {
-                    pdfButtons += `<a href="${url}" class="btn-pdf" target="_blank">📄 Download PDF</a>`;
-                });
-            }
-
-            let imagesHtml = '';
-            if (notice.images) {
-                notice.images.forEach(src => {
+    
+        if(page === 1){
+            container.innerHTML = "";
+        }
+    
+        data.forEach(notice => {
+    
+            let imagesHtml = "";
+            if(notice.images){
+                notice.images.forEach(src=>{
                     imagesHtml += `<img src="${src}">`;
                 });
             }
-
+    
             container.innerHTML += `
             <div class="card">
-                <div class="card-date">📅 ${notice.date || 'Recent'}</div>
+                <div class="card-date">📅 ${notice.date}</div>
                 <h3 class="card-title">${notice.title}</h3>
-
-                <div class="card-text">
-                    ${notice.text}
-                </div>
-
+                <div class="card-text">${notice.text}</div>
                 ${imagesHtml}
-
-                <div style="margin-top:20px;padding-top:10px;">
-                    ${pdfButtons}
-                    <a href="${notice.link}" class="btn-link" target="_blank">Official Link &rarr;</a>
-                </div>
             </div>
             `;
         });
 
-        if (visibleCount < noticesArray.length) {
+        const oldBtn = document.querySelector('#loadMoreBtn');
+        if(oldBtn) oldBtn.remove();
+        
+        if(page < totalPages){
             container.innerHTML += `
             <div style="text-align:center;margin-top:20px;">
-                <button onclick="loadMore()">Load More</button>
+            <button id="loadMoreBtn" onclick="loadMore()">Load More</button>
             </div>`;
         }
-
+    
+    });
     }
 
-    function loadMore() {
-        visibleCount += 5;
-        renderNotices();
+    function loadMore(){
+
+    currentPage++;
+    
+    if(currentPage <= totalPages){
+        loadPage(currentPage);
+    }
     }
 
 </script>
@@ -385,6 +366,7 @@ Send Feedback
 </body>
 
 </html>
+
 
 
 
