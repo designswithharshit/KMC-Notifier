@@ -143,7 +143,7 @@ def parse_notice_date(date_text, fallback):
         return fallback
 
     try:
-        return (match.group(1), "%d-%m-%Y")
+        return datetime.strptime(match.group(1), "%d-%m-%Y")
     except ValueError:
         return fallback
 
@@ -264,6 +264,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
