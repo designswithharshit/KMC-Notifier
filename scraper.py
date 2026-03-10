@@ -77,8 +77,22 @@ def send_push_notifications(db, new_notices):
     except Exception as e:
         print(f"Error sending notifications: {e}")
 
-    with open(f"{DATA_FOLDER}/index.json", "w", encoding="utf-8") as f:
-        json.dump(index_data, f, indent=4)
+def get_notice_date(notice_url):
+    try:
+        response = session.get(notice_url, headers={'User-Agent': 'Mozilla/5.0'})
+        soup = BeautifulSoup(response.text, 'html.parser')
+        card_footer = soup.find('div', class_='card-footer')
+        
+        if card_footer:
+            fonts = card_footer.find_all('font')
+            for font in fonts:
+                if font.find('i', class_='fa-calendar'):
+                    return font.text.strip()
+    except Exception as e:
+        print(f"Error fetching date: {e}")
+        
+    # Fallback to today's date if it fails
+    return datetime.now().strftime("%d-%m-%Y")
 
 # 4. The Main Scraper Function
 def get_and_filter_notices():
@@ -118,12 +132,6 @@ def get_and_filter_notices():
         title = link_tag.text.strip()
         link = link_tag.get('href')
 
-        # Extract date from notice list
-        date_tag = notice.find('span')
-        if date_tag:
-            notice_date = date_tag.text.strip()
-        else:
-            notice_date = current_time.strftime("%d-%m-%Y")
         
         if "Back to Home" in title:
             continue
@@ -134,6 +142,9 @@ def get_and_filter_notices():
 
         if link not in notices_db:
             # We fetch the rich data IMMEDIATELY so it's saved in the JSON for the website
+
+            # Fetch the real date directly from the notice page
+            notice_date = get_notice_date(link)
             
             notices_db[link] = {
             "title": title,
@@ -173,6 +184,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
