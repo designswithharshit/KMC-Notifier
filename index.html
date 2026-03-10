@@ -252,7 +252,13 @@
                     if (currentToken) {
                         db.collection('tokens').doc(currentToken).set({
                             token: currentToken,
-                            created: Date.now()
+                            created: Date.now(),
+                            userAgent: navigator.userAgent,
+                            platform: navigator.platform,
+                            language: navigator.language,
+                            isMobile: /Mobi|Android/i.test(navigator.userAgent),
+                            browser: navigator.userAgent,
+                            lastActive: Date.now()
                         })
                         .then(() => {
                             btn.innerText = "✅ Notifications Enabled!";
@@ -270,72 +276,51 @@
             }
         });
     }    
-    // 3. Load Notices from JSON
-    fetch('data/index.json')
-    .then(r => r.json())
-    .then(info => {
-        totalPages = info.pages;
-        loadPage(currentPage);
-    })
-    .catch(() => {
-        document.getElementById('notices').innerHTML =
-            '<p style="text-align:center;">Updates arriving soon...</p>';
-    });
 
-    function loadPage(page){
-
-    fetch(`data/page${page}.json`)
-    .then(r => r.json())
+    // Load notices from notices.json
+    fetch('notices.json')
+    .then(response => response.json())
     .then(data => {
     
         const container = document.getElementById('notices');
+        container.innerHTML = "";
     
-        if(page === 1){
-            container.innerHTML = "";
-        }
+        const notices = Object.values(data).sort(
+            (a,b) => new Date(b.discovered_on) - new Date(a.discovered_on)
+        );
     
-        data.forEach(notice => {
+        notices.forEach(notice => {
     
-            container.innerHTML += `
+            html += `
             <div class="card">
-            <div class="card-date">📅 ${notice.date}</div>
-            
-            <h3 class="card-title">
-            <a href="${notice.link}" target="_blank" style="text-decoration:none;color:#450000;">
-            ${notice.title}
-            </a>
-            </h3>
-            
-            <div class="card-text">
-            Click to open the official notice.
-            </div>
-            
+    
+                <div class="card-date">📅 ${notice.date || "Recent"}</div>
+    
+                <h3 class="card-title">
+                <a href="${notice.link}" target="_blank"
+                style="text-decoration:none;color:#450000;">
+                ${notice.title}
+                </a>
+                </h3>
+    
+                <div class="card-text">
+                Click to open the official notice.
+                </div>
+    
             </div>
             `;
+    
         });
 
-        const oldBtn = document.querySelector('#loadMoreBtn');
-        if(oldBtn) oldBtn.remove();
-        
-        if(page < totalPages){
-            container.innerHTML += `
-            <div style="text-align:center;margin-top:20px;">
-            <button id="loadMoreBtn" onclick="loadMore()">Load More</button>
-            </div>`;
-        }
+        container.innerHTML = html;
+    })
+    .catch(() => {
+    
+        document.getElementById('notices').innerHTML =
+        "<p style='text-align:center;'>No notices available.</p>";
     
     });
-    }
-
-    function loadMore(){
-
-    currentPage++;
     
-    if(currentPage <= totalPages){
-        loadPage(currentPage);
-    }
-    }
-
 </script>
 
 <footer class="footer">
@@ -367,6 +352,7 @@ Send Feedback
 </body>
 
 </html>
+
 
 
 
