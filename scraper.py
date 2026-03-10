@@ -27,61 +27,6 @@ def init_firebase():
         
     return firestore.client()
 
-# 2. The Deep Dive Function
-def get_rich_notice_data(notice_url):
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    response = session.get(notice_url, headers=headers)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    
-    main_window = soup.find('div', class_='col-md-9')
-    if not main_window:
-        return {"text": "Content could not be extracted.", "date": "Unknown Date", "pdfs": [], "images": []}
-
-    card_body = main_window.find('div', class_='card-body')
-    card_footer = main_window.find('div', class_='card-footer')
-
-    extracted_data = {"text": "", "date": "Unknown Date", "pdfs": [], "images": []}
-
-    if card_body:
-        extracted_data["text"] = card_body.decode_contents()
-        for a_tag in card_body.find_all('a'):
-            href = a_tag.get('href')
-            if href and '.pdf' in href.lower():
-                if href.startswith('/'):
-                    href = "https://kmc.du.ac.in" + href
-                extracted_data["pdfs"].append(href)
-
-        for img in card_body.find_all('img'):
-            src = img.get('src')
-        
-            if not src:
-                continue
-        
-            # ignore duplicate base64 image already inside text
-            if src.startswith("data:image") and src in extracted_data["text"]:
-                continue
-        
-            # keep base64 images
-            if src.startswith('data:image'):
-                extracted_data["images"].append(src)
-                continue
-        
-            # convert relative path
-            if src.startswith('/'):
-                src = "https://kmc.du.ac.in" + src
-        
-            if src not in extracted_data["images"]:
-                extracted_data["images"].append(src)
-
-    if card_footer:
-        fonts = card_footer.find_all('font')
-        for font in fonts:
-            if font.find('i', class_='fa-calendar'):
-                extracted_data["date"] = font.text.strip()
-                break
-
-    return extracted_data
-
 # 3. The Firebase Push Function
 def send_push_notifications(db, new_notices):
     if not db or not new_notices: return
@@ -221,16 +166,12 @@ def get_and_filter_notices():
 
         if link not in notices_db:
             # We fetch the rich data IMMEDIATELY so it's saved in the JSON for the website
-            rich_data = get_rich_notice_data(link)
             
             notices_db[link] = {
-                "title": title,
-                "link": link,
-                "date": rich_data['date'],
-                "text": rich_data['text'],
-                "pdfs": rich_data['pdfs'],
-                "images": rich_data['images'],
-                "discovered_on": current_time.strftime("%Y-%m-%d %H:%M:%S")
+            "title": title,
+            "link": link,
+            "date": current_time.strftime("%d-%m-%Y"),
+            "discovered_on": current_time.strftime("%Y-%m-%d %H:%M:%S")
             }
             new_notices_list.append(notices_db[link])
             print(f"New Notice Found & Processed: {title}")
@@ -266,6 +207,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
