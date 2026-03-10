@@ -1,0 +1,25 @@
+name: Send Global Announcement
+
+on:
+  workflow_dispatch: # This enables the manual "Run workflow" button in GitHub
+
+jobs:
+  blast_message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Firebase Admin
+        run: pip install firebase-admin
+
+      - name: Run Announcement Script
+        env:
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+        run: python announce.py
