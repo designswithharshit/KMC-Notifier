@@ -296,19 +296,20 @@
     
         data.forEach(notice => {
     
-            let imagesHtml = "";
-            if(notice.images){
-                notice.images.forEach(src=>{
-                    imagesHtml += `<img src="${src}">`;
-                });
-            }
-    
             container.innerHTML += `
             <div class="card">
-                <div class="card-date">📅 ${notice.date}</div>
-                <h3 class="card-title">${notice.title}</h3>
-                <div class="card-text">${notice.text}</div>
-                ${imagesHtml}
+            <div class="card-date">📅 ${notice.date}</div>
+            
+            <h3 class="card-title">
+            <a href="${notice.link}" target="_blank" style="text-decoration:none;color:#450000;">
+            ${notice.title}
+            </a>
+            </h3>
+            
+            <div class="card-text">
+            Click to open the official notice.
+            </div>
+            
             </div>
             `;
         });
@@ -366,6 +367,7 @@ Send Feedback
 </body>
 
 </html>
+
 
 
 
