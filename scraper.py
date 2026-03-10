@@ -7,8 +7,6 @@ from datetime import datetime, timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging
 
-NOTICES_PER_PAGE = 20
-DATA_FOLDER = "data"
 session = requests.Session()
 
 # 1. Initialize Firebase (Using GitHub Secrets)
@@ -79,19 +77,6 @@ def send_push_notifications(db, new_notices):
     except Exception as e:
         print(f"Error sending notifications: {e}")
 
-def parse_notice_date(date_text, fallback):
-    if not date_text:
-        return fallback
-
-    match = re.search(r"(\d{2}-\d{2}-\d{4})", date_text)
-    if not match:
-        return fallback
-
-    try:
-        return datetime.strptime(match.group(1), "%d-%m-%Y")
-    except ValueError:
-        return fallback
-
     with open(f"{DATA_FOLDER}/index.json", "w", encoding="utf-8") as f:
         json.dump(index_data, f, indent=4)
 
@@ -132,6 +117,13 @@ def get_and_filter_notices():
             
         title = link_tag.text.strip()
         link = link_tag.get('href')
+
+        # Extract date from notice list
+        date_tag = notice.find('span')
+        if date_tag:
+            notice_date = date_tag.text.strip()
+        else:
+            notice_date = current_time.strftime("%d-%m-%Y")
         
         if "Back to Home" in title:
             continue
@@ -146,7 +138,7 @@ def get_and_filter_notices():
             notices_db[link] = {
             "title": title,
             "link": link,
-            "date": current_time.strftime("%d-%m-%Y"),
+            "date": notice_date,
             "discovered_on": current_time.strftime("%Y-%m-%d %H:%M:%S")
             }
             new_notices_list.append(notices_db[link])
@@ -181,6 +173,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
