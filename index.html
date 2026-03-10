@@ -285,6 +285,8 @@
         const container = document.getElementById('notices');
         container.innerHTML = "";
     
+        let html = "";   // ✅ important
+    
         const notices = Object.values(data).sort(
             (a,b) => new Date(b.discovered_on) - new Date(a.discovered_on)
         );
@@ -311,8 +313,9 @@
             `;
     
         });
-
+    
         container.innerHTML = html;
+    
     })
     .catch(() => {
     
@@ -352,6 +355,7 @@ Send Feedback
 </body>
 
 </html>
+
 
 
 
