@@ -57,7 +57,7 @@ def send_push_notifications(db, new_notices):
             data={
                 'title': title,
                 'body': notice_body,
-                'url': 'https://designswithharshit.github.io/KMC-Notifier/',
+                'url': new_notices[0]['link']
                 'notice_link': new_notices[0]['link'] if len(new_notices) == 1 else ''
             },
             tokens=tokens
@@ -207,6 +207,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
