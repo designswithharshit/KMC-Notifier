@@ -92,30 +92,6 @@ def parse_notice_date(date_text, fallback):
     except ValueError:
         return fallback
 
-def save_paginated_json(notices):
-
-    print("Saving paginated JSON files...")
-
-    os.makedirs(DATA_FOLDER, exist_ok=True)
-
-    notices_list = list(notices.values())
-
-    pages = [
-        notices_list[i:i+NOTICES_PER_PAGE]
-        for i in range(0, len(notices_list), NOTICES_PER_PAGE)
-    ]
-
-    for i, page in enumerate(pages, start=1):
-        filename = f"{DATA_FOLDER}/page{i}.json"
-
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(page, f, indent=4)
-
-    index_data = {
-        "pages": len(pages),
-        "per_page": NOTICES_PER_PAGE
-    }
-
     with open(f"{DATA_FOLDER}/index.json", "w", encoding="utf-8") as f:
         json.dump(index_data, f, indent=4)
 
@@ -196,8 +172,6 @@ def get_and_filter_notices():
     with open(db_file, "w", encoding="utf-8") as f:
         json.dump(sorted_notices, f, indent=4)
     
-    save_paginated_json(sorted_notices)
-    
     if new_notices_list:
         print("Triggering Firebase Push Notifications...")
         send_push_notifications(db, new_notices_list)
@@ -207,6 +181,7 @@ def get_and_filter_notices():
 if __name__ == "__main__":
 
     get_and_filter_notices()
+
 
 
 
