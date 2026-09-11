@@ -1,4 +1,16 @@
 {
+    "https://kmc.du.ac.in/kmcouter/collnews/60149865/1001/All/All": {
+        "title": "THE LIST OF CANDIDATES CONTESTING VARIOUS POSTS IN THE COLLEGE STUDENTS\u2019 UNION ELECTION 2026\u201327, ALONG WITH THEIR BALLOT NUMBERS, IS GIVEN BELOW.",
+        "link": "https://kmc.du.ac.in/kmcouter/collnews/60149865/1001/All/All",
+        "date": "11-09-2026",
+        "discovered_on": "2026-09-11 10:20:00"
+    },
+    "https://kmc.du.ac.in/kmcouter/collnews/25089390/1001/All/All": {
+        "title": "STUDENTS UNION ELECTION 2026-27 LIST OF FINAL CANDIDATES",
+        "link": "https://kmc.du.ac.in/kmcouter/collnews/25089390/1001/All/All",
+        "date": "11-09-2026",
+        "discovered_on": "2026-09-11 10:20:00"
+    },
     "https://kmc.du.ac.in/kmcouter/collnews/16765700/1001/All/All": {
         "title": "STUDENTS UNION ELECTION 2026-27 LIST OF DULY NOMINATED CANDIDATES AFTER SCRUTINY",
         "link": "https://kmc.du.ac.in/kmcouter/collnews/16765700/1001/All/All",
@@ -196,11 +208,5 @@
         "link": "https://kmc.du.ac.in/kmcouter/collnews/98078578/1001/All/All",
         "date": "12-08-2026",
         "discovered_on": "2026-08-12 10:53:35"
-    },
-    "https://kmc.du.ac.in/kmcouter/collnews/34585877/1001/All/All": {
-        "title": "NOTICE FOR CHANGE_CORRECTION_GE_DSE_AEC",
-        "link": "https://kmc.du.ac.in/kmcouter/collnews/34585877/1001/All/All",
-        "date": "12-08-2026",
-        "discovered_on": "2026-08-12 05:36:46"
     }
 }
